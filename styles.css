@@ -1,0 +1,341 @@
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  max-width: 850px;
+  margin: 0 auto;
+  padding: 15px;
+  background-color: #f9fafc;
+  color: #333;
+  box-sizing: border-box;
+}
+
+h1, h2 {
+  margin: 20px 0 10px;
+}
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-bottom: 15px;
+  table-layout: fixed;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  background-color: #fff;
+  min-width: 280px; /* Minimum bredde for lesbarhet */
+}
+
+.table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 15px;
+  border-radius: 8px;
+}
+
+th, td {
+  padding: 12px 6px;
+  text-align: center;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 0.95em;
+  color: #333;
+  word-wrap: break-word;
+}
+
+th {
+  background-color: #4a90e2;
+  color: white;
+  font-weight: 600;
+  border-bottom: 2px solid #357abd;
+  user-select: none;
+}
+
+tbody tr:hover {
+  background-color: #f0f7ff;
+  cursor: pointer;
+}
+
+tr.aktiv {
+  background-color: #e0e0e0  !important;
+}
+
+input[type="number"] {
+  width: 70%;
+  padding: 10px 8px;
+  box-sizing: border-box;
+  border: 1.5px solid #bbb;
+  border-radius: 6px;
+  font-size: 16px; /* Forhindrer zoom på iOS */
+  text-align: center;
+  transition: border-color 0.3s;
+  background-color: white;
+  color: #333;
+  min-height: 44px; /* Apple anbefalt touch target størrelse */
+}
+
+input[type="number"]:focus {
+  border-color: #4a90e2;
+  outline: none;
+  background-color: #f7fbff;
+}
+
+.prosent-wrapper {
+  position: relative;
+}
+
+.prosent-wrapper input {
+  padding-right: 20px;
+  text-align: center;
+  background-color: white;
+  color: #333;
+}
+
+.prosent-wrapper::after {
+  content: "%";
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+  pointer-events: none;
+}
+
+.antall {
+  opacity: 0.4;
+  transition: opacity 0.2s;
+  text-align: center;
+}
+
+.antall.active {
+  opacity: 1;
+}
+
+.grand-total {
+  font-size: 1.1em;
+  text-align: right;
+  margin-top: 15px;
+  font-weight: bold;
+  color: #222;
+}
+
+.knapper {
+  margin-top: 20px;
+  text-align: right;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+button {
+  padding: 12px 16px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 8px;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  transition: background-color 0.3s;
+  min-height: 44px;
+  touch-action: manipulation; /* Bedre touch respons */
+}
+
+button:hover {
+  background-color: #357abd;
+}
+
+.fjern-knapp {
+  background: none;
+  border: none;
+  color: red;
+  font-size: 1.2em;
+  cursor: pointer;
+  float: right;
+}
+
+#egendefinertseksjon {
+  display: none;
+}
+
+@media print {
+  tr.aktiv {
+    background-color: #e0e0e0  !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .fjern-knapp, button, .knapper {
+    display: none;
+  }
+  input[type="number"] {
+    text-align: center !important;
+  }
+  th {
+    background-color: #4a90e2;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color: white;
+    font-weight: 600;
+    border-bottom: 2px solid #357abd;
+    user-select: none;
+  }
+}
+
+/* Tablet visning */
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+  
+  h1 {
+    font-size: 1.5em;
+    text-align: center;
+    margin: 15px 0;
+  }
+  
+  table {
+    font-size: 0.9em;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  }
+  
+  th, td {
+    padding: 10px 6px;
+  }
+  
+  .knapper {
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  .grand-total {
+    text-align: center;
+    font-size: 1.1em;
+    padding: 15px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    margin: 20px 0;
+  }
+}
+
+/* Mobilvisning */
+@media (max-width: 480px) {
+  body {
+    padding: 8px;
+    margin: 0;
+  }
+  
+  h1 {
+    font-size: 1.3em;
+    margin: 10px 0 15px;
+    text-align: center;
+    line-height: 1.3;
+  }
+  
+  h2 {
+    font-size: 1.1em;
+    margin: 15px 0 8px;
+    text-align: center;
+  }
+  
+  table {
+    font-size: 0.85em;
+    margin-bottom: 20px;
+    border-radius: 6px;
+  }
+  
+  th, td {
+    padding: 8px 4px;
+    font-size: 0.85em;
+  }
+  
+  th {
+    font-size: 0.8em;
+    padding: 10px 4px;
+  }
+  
+  /* Gjør tabellen scrollbar horisontalt på små skjermer */
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  input[type="number"] {
+    width: 85%;
+    padding: 8px 6px;
+    font-size: 16px;
+    min-height: 40px;
+  }
+  
+  .prosent-wrapper input {
+    padding-right: 18px;
+  }
+  
+  .knapper {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin: 20px 0;
+  }
+  
+  .knapper button {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 16px;
+    font-weight: 500;
+  }
+  
+  .grand-total {
+    font-size: 1.2em;
+    text-align: center;
+    padding: 20px 15px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin: 20px 0;
+    border: 2px solid #4a90e2;
+  }
+  
+  .fjern-knapp {
+    font-size: 1.4em;
+    padding: 8px;
+    margin: -4px;
+  }
+  
+  /* Bedre touch targets */
+  tbody tr {
+    min-height: 50px;
+  }
+  
+  /* Forbedret hover-effekt for touch */
+  tbody tr:active {
+    background-color: #f0f7ff;
+  }
+}
+
+/* Ekstra små skjermer */
+@media (max-width: 360px) {
+  body {
+    padding: 5px;
+  }
+  
+  h1 {
+    font-size: 1.2em;
+  }
+  
+  table {
+    font-size: 0.8em;
+  }
+  
+  th, td {
+    padding: 6px 3px;
+  }
+  
+  input[type="number"] {
+    width: 90%;
+    padding: 6px 4px;
+    min-height: 38px;
+  }
+  
+  .grand-total {
+    font-size: 1.1em;
+    padding: 15px 10px;
+  }
+}
