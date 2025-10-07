@@ -1,4 +1,21 @@
-// Data for drikkevarer
+/**
+ * ALKOHOLENHETSKALKULATOR
+ * ======================
+ * 
+ * Denne filen inneholder all JavaScript-funksjonalitet for alkoholenhetskalkulatoren.
+ * Kalkulatoren beregner alkoholenheter basert på volum, alkoholprosent og antall.
+ * 
+ * Formel for alkoholenheter: Volum (liter) × Alkoholprosent × Antall × 8 / 12
+ */
+
+// ===========================
+// KONSTANTER OG DATA
+// ===========================
+
+/**
+ * Predefinerte drikkevaretyper med standardverdier
+ * Hver kategori inneholder volum (i liter), visningstekst og typisk alkoholprosent
+ */
 const drikkedata = {
   "Øl/cider": [
     { volum: 0.5, visning: "0,5 liter", prosent: 4.5 },
@@ -16,51 +33,99 @@ const drikkedata = {
   ]
 };
 
-// Globale variabler
+// ===========================
+// GLOBALE VARIABLER
+// ===========================
+
+/**
+ * DOM-elementer som brukes gjennom hele applikasjonen
+ */
 const kalkulatorDiv = document.getElementById("kalkulator");
 const egendefinertSeksjon = document.getElementById("egendefinertseksjon");
-let egendefinertH2;
-let egendefinertTable;
 
-// Initialiser kalkulatoren
+/**
+ * Variabler for egendefinerte drikkevarer
+ */
+let egendefinertH2 = null;
+let egendefinertTable = null;
+
+// ===========================
+// HOVEDFUNKSJONER
+// ===========================
+
+/**
+ * Initialiserer kalkulatoren ved oppstart
+ * 
+ * Denne funksjonen:
+ * - Lager tabeller for alle forhåndsdefinerte drikkekategorier
+ * - Legger til overskrifter for hver kategori
+ * - Kjører første beregning for å vise startverdi (0 AE)
+ */
 function initKalkulator() {
+  // Gå gjennom alle drikkekategorier i datasettet
   for (const kategori in drikkedata) {
+    // Lag overskrift for kategorien
     const h2 = document.createElement("h2");
     h2.textContent = kategori;
     kalkulatorDiv.appendChild(h2);
 
-    const table = lagTabell(kategori, drikkedata[kategori]);
-    kalkulatorDiv.appendChild(table);
+    // Lag tabell med alle drikkevarene i kategorien
+    const tableContainer = lagTabell(kategori, drikkedata[kategori]);
+    kalkulatorDiv.appendChild(tableContainer);
   }
   
-  // Initial oppdatering ved innlasting
+  // Kjør første kalkulasjon for å vise "0 AE" som startverdi
   oppdaterKalkulasjon();
 }
 
-// Vis egendefinert seksjon
+/**
+ * Viser og håndterer egendefinert drikke-seksjonen
+ * 
+ * Denne funksjonen kalles når bruker trykker "Legg til egendefinert"-knappen.
+ * Første gang: Lager overskrift og tabell for egendefinerte drikkevarer
+ * Påfølgende ganger: Legger bare til en ny rad
+ */
 function visEgendefinert() {
+  // Vis den skjulte egendefinerte seksjonen
   egendefinertSeksjon.style.display = "block";
+  
   if (!egendefinertTable) {
+    // Første gang: Lag overskrift
     egendefinertH2 = document.createElement("h2");
     egendefinertH2.textContent = "Egendefinert";
     egendefinertSeksjon.appendChild(egendefinertH2);
 
+    // Lag tom tabell for egendefinerte drikkevarer
     egendefinertTable = lagTabell("Egendefinert", [], true);
     egendefinertSeksjon.appendChild(egendefinertTable);
   } else {
+    // Påfølgende ganger: Bare legg til en ny rad
     leggTilEgendefinertRad();
   }
 }
 
-// Lag tabell for kategori
+// ===========================
+// TABELL-FUNKSJONER
+// ===========================
+
+/**
+ * Lager en HTML-tabell for en drikkekategori
+ * 
+ * @param {string} kategori - Navn på kategorien (f.eks. "Øl/cider")
+ * @param {Array} rader - Array med drikkedata for kategorien
+ * @param {boolean} egendefinert - Om dette er tabellen for egendefinerte drikkevarer
+ * @returns {HTMLElement} - Container-div med tabellen
+ */
 function lagTabell(kategori, rader, egendefinert = false) {
-  // Wrapper for horizontal scrolling på mobile
+  // Lag wrapper-container for horizontal scrolling på mobile enheter
   const tableContainer = document.createElement("div");
   tableContainer.className = "table-container";
   
+  // Lag selve tabellen
   const table = document.createElement("table");
-  table.dataset.kategori = kategori;
-
+  table.dataset.kategori = kategori; // Sett kategori som data-attributt for senere referanse
+  
+  // Lag tabellhode med kolonner
   const thead = document.createElement("thead");
   thead.innerHTML = `
     <tr>
@@ -71,79 +136,123 @@ function lagTabell(kategori, rader, egendefinert = false) {
     </tr>`;
   table.appendChild(thead);
 
+  // Lag tabellkropp
   const tbody = document.createElement("tbody");
   table.appendChild(tbody);
   
+  // Legg tabellen inn i container
   tableContainer.appendChild(table);
 
   if (!egendefinert) {
+    // For forhåndsdefinerte drikkevarer: Lag rader med faste verdier
     rader.forEach(({ volum, visning, prosent }) => {
       const tr = document.createElement("tr");
-      tr.dataset.volume = volum;
+      tr.dataset.volume = volum; // Lagre volum som data-attributt
       tr.innerHTML = `
         <td>${visning}</td>
-        <td><div class="prosent-wrapper"><input type="number" class="prosent" value="${prosent}" step="any"></div></td>
+        <td><input type="number" class="prosent" value="${prosent}" step="any">  %</td>
         <td><input type="number" class="antall" value="0" step="any"></td>
         <td class="ae"></td>`;
       tbody.appendChild(tr);
-      leggTilLyttere(tr);
+      leggTilLyttere(tr); // Legg til event listeners for input-feltene
     });
   } else {
+    // For egendefinerte drikkevarer: Legg til en tom rad
     leggTilEgendefinertRad(tbody);
   }
 
   return tableContainer;
 }
 
-// Legg til egendefinert rad
+/**
+ * Legger til en ny rad i egendefinert-tabellen
+ * 
+ * @param {HTMLElement} tbody - Tabellkroppen å legge til rad i (valgfri)
+ */
 function leggTilEgendefinertRad(tbody = null) {
+  // Hvis ingen tbody er spesifisert, finn den for egendefinerte drikkevarer
   if (!tbody) {
     tbody = document.querySelector("table[data-kategori='Egendefinert'] tbody");
   }
+  
+  // Lag ny rad med input-felt for alle verdier
   const tr = document.createElement("tr");
   tr.innerHTML = `
     <td><input type="number" class="volum" step="any" placeholder="Liter"></td>
-    <td><div class="prosent-wrapper"><input type="number" class="prosent" step="any" placeholder="Alkoholprosent"></div></td>
-    <td><input type="number" class="antall" value="0" step="any"></td>
+    <td><input type="number" class="prosent" step="any" placeholder="Alkohol%">  %</td>
+    <td><input type="number" class="antall" value="1" step="any"></td>
     <td class="ae"><button class="fjern-knapp" onclick="fjernRad(this)">&times;</button></td>`;
+  
   tbody.appendChild(tr);
-  leggTilLyttere(tr);
+  leggTilLyttere(tr); // Legg til event listeners for den nye raden
 }
 
-// Legg til event listeners for input-felt
+// ===========================
+// EVENT LISTENERS
+// ===========================
+
+/**
+ * Legger til event listeners for alle input-felt i en tabellrad
+ * 
+ * Denne funksjonen håndterer:
+ * - Focus-hendelser (tømmer felt ved første bruk)
+ * - Input-hendelser (oppdaterer kalkulasjoner)
+ * - Mobile-spesifikk funksjonalitet (scrolling og touch)
+ * - Keyboard-hendelser (lukker tastatur ved Enter)
+ * 
+ * @param {HTMLElement} tr - Tabellraden å legge til listeners for
+ */
 function leggTilLyttere(tr) {
   const inputs = tr.querySelectorAll("input");
+  
   inputs.forEach(input => {
-    const initial = input.value;
-    let touched = false;
+    const initial = input.value; // Husk opprinnelig verdi
+    let touched = false; // Flag for å spore om feltet har blitt endret
+    let originalValue = input.value; // Lagre den opprinnelige verdien permanent
     
-    // Bedre mobilopplevelse - unngå zoom på focus
+    // Spesiell håndtering for number-input
     if (input.type === "number") {
+      // Focus-hendelse: Tøm felt ved første bruk
       input.addEventListener("focus", () => {
-        // Scroll til element på mobile enheter
+        // Mobile-optimalisering: Scroll til felt på små skjermer
         if (window.innerWidth <= 480) {
           setTimeout(() => {
             input.scrollIntoView({ behavior: "smooth", block: "center" });
           }, 300);
         }
         
+        // Tøm felt hvis det ikke har blitt endret og har standard-/null-verdi
         if (!touched && (input.value === initial || input.value === "0")) {
           input.value = "";
         }
       });
       
-      // Bedre touch-respons
+      // Blur-hendelse: Sett tilbake til opprinnelig verdi hvis tomt
+      input.addEventListener("blur", () => {
+        // Hvis feltet er tomt eller bare whitespace, sett tilbake til opprinnelig verdi
+        if (!input.value.trim()) {
+          input.value = originalValue;
+          touched = false; // Reset touched-status
+          oppdaterKalkulasjon(); // Oppdater kalkulasjon med opprinnelig verdi
+        }
+      });
+      
+      // Mobile touch-optimalisering
       input.addEventListener("touchstart", () => {
         input.focus();
       });
     }
     
+    // Input-hendelse: Marker som endret og oppdater kalkulasjoner
     input.addEventListener("input", () => {
-      touched = true;
+      // Kun marker som touched hvis det faktisk er skrevet noe
+      if (input.value.trim()) {
+        touched = true;
+      }
       oppdaterKalkulasjon();
     });
     
-    // Lukk tastatur når bruker trykker enter
+    // Keyboard-hendelse: Lukk tastatur ved Enter-trykk
     input.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         input.blur();
@@ -152,54 +261,250 @@ function leggTilLyttere(tr) {
   });
 }
 
-// Kalkuler alkoholenheter
+// ===========================
+// KALKULASJONSFUNKSJONER
+// ===========================
+
+/**
+ * Beregner alkoholenheter for en drikkevare
+ * 
+ * Formel: Volum (liter) × Alkoholprosent × Antall × 8 / 12
+ * 
+ * @param {number} volum - Volum i liter
+ * @param {number} prosent - Alkoholprosent
+ * @param {number} antall - Antall enheter konsumert
+ * @returns {number} - Antall alkoholenheter (0 hvis noen verdier mangler)
+ */
 function kalkulerAE(volum, prosent, antall) {
+  // Returner 0 hvis noen av verdiene mangler eller er 0
   if (!volum || !prosent || !antall) return 0;
+  
+  // Beregn alkoholenheter med standard norsk formel
   return volum * prosent * antall * 8 / 12;
 }
 
-// Oppdater alle kalkulasjoner
+/**
+ * Oppdaterer alle kalkulasjoner på siden
+ * 
+ * Denne funksjonen:
+ * - Går gjennom alle rader i alle tabeller
+ * - Beregner alkoholenheter for hver rad
+ * - Oppdaterer visuell status (aktiv/inaktiv)
+ * - Summerer totalt antall alkoholenheter
+ * - Oppdaterer total-visningen
+ */
 function oppdaterKalkulasjon() {
   let total = 0;
+  
+  // Gå gjennom alle tabellrader
   document.querySelectorAll("tbody tr").forEach(tr => {
+    // Hent input-felt og resultat-celle
     const volumInput = tr.querySelector(".volum");
     const prosentInput = tr.querySelector(".prosent");
     const antallInput = tr.querySelector(".antall");
     const aeTd = tr.querySelector(".ae");
 
+    // Hent verdier - bruk dataset.volume for forhåndsdefinerte, input.value for egendefinerte
     const volum = volumInput ? parseFloat(volumInput.value) : parseFloat(tr.dataset.volume);
-    const prosent = prosentInput ? parseFloat(prosentInput.value) : parseFloat(tr.querySelector(".prosent").value);
-    const antall = antallInput ? parseFloat(antallInput.value) : parseFloat(tr.querySelector(".antall").value);
+    const prosent = parseFloat(tr.querySelector(".prosent").value);
+    const antall = parseFloat(tr.querySelector(".antall").value);
 
+    // Beregn alkoholenheter for denne raden
     const ae = kalkulerAE(volum, prosent, antall);
-    aeTd.textContent = ae ? ae.toFixed(1) : "";
+    
+    // Sjekk om dette er en egendefinert rad (har fjern-knapp)
+    const fjernKnapp = aeTd.querySelector(".fjern-knapp");
+    
+    if (fjernKnapp) {
+      // Egendefinert rad: Vis AE-verdi ved siden av fjern-knappen
+      const aeText = ae ? ae.toFixed(1) : "";
+      aeTd.innerHTML = `${aeText}<button class="fjern-knapp" onclick="fjernRad(this)">&times;</button>`;
+    } else {
+      // Forhåndsdefinert rad: Vis bare AE-verdi
+      aeTd.textContent = ae ? ae.toFixed(1) : "";
+    }
 
+    // Marker raden som aktiv hvis antall > 0
     if (antall > 0) {
       tr.classList.add("aktiv");
     } else {
       tr.classList.remove("aktiv");
     }
+    
+    // Legg til i total
     total += ae;
   });
+  
+  // Oppdater totalvisning (avrundet til nærmeste hele tall)
   document.getElementById("grandTotal").textContent = Math.round(total);
 }
 
-// Reset kalkulatoren
+// ===========================
+// HJELPE- OG KONTROLLSFUNKSJONER
+// ===========================
+
+/**
+ * Nullstiller hele kalkulatoren til startverdi
+ * 
+ * Denne funksjonen:
+ * - Setter alle input-felt tilbake til standardverdier
+ * - Fjerner "aktiv"-klasse fra alle rader
+ * - Nullstiller totalvisningen
+ * - Kjører ny kalkulasjon for å oppdatere alt
+ */
 function resetKalkulator() {
+  // Reset alle number-input til standardverdi (eller "0")
   document.querySelectorAll("input[type=number]").forEach(input => {
     input.value = input.defaultValue || "0";
   });
+  
+  // Fjern "aktiv"-klasse fra alle rader
   document.querySelectorAll("tr.aktiv").forEach(tr => tr.classList.remove("aktiv"));
+  
+  // Nullstill total-visning
   document.getElementById("grandTotal").textContent = "0";
+  
+  // Kjør kalkulasjon for å sikre at alt er oppdatert
   oppdaterKalkulasjon();
 }
 
-// Fjern egendefinert rad
+/**
+ * Fjerner en egendefinert rad fra tabellen
+ * Hvis det var den siste raden, fjernes hele egendefinert-seksjonen
+ * 
+ * @param {HTMLElement} knapp - Fjern-knappen som ble trykket
+ */
 function fjernRad(knapp) {
+  // Finn den nærmeste tabellraden oppover i DOM-hierarkiet
   const tr = knapp.closest("tr");
+  const tbody = tr.closest("tbody");
+  
+  // Sjekk hvor mange rader som finnes FØR vi fjerner denne raden
+  const currentRows = tbody.querySelectorAll("tr");
+  const isLastRow = currentRows.length === 1;
+  
+  // Fjern raden fra DOM
   tr.remove();
+  
+  // Hvis det var den siste raden, fjern hele egendefinert-seksjonen
+  if (isLastRow) {
+    // Skjul egendefinert-seksjonen
+    egendefinertSeksjon.style.display = "none";
+    
+    // Fjern overskrift og tabell-container
+    if (egendefinertH2 && egendefinertH2.parentNode) {
+      egendefinertH2.remove();
+    }
+    if (egendefinertTable && egendefinertTable.parentNode) {
+      egendefinertTable.remove();
+    }
+    
+    // Nullstill globale variabler så de kan lages på nytt senere
+    egendefinertH2 = null;
+    egendefinertTable = null;
+  }
+  
+  // Oppdater kalkulasjoner siden en rad er fjernet
   oppdaterKalkulasjon();
 }
 
-// Start applikasjonen når siden er lastet
+/**
+ * Lager en tekstlig oppsummering av alkoholenheter og kopierer til utklippstavlen
+ * 
+ * Denne funksjonen:
+ * - Samler all data fra aktive rader (med antall > 0)
+ * - Lager en formatert tekstoppsummering
+ * - Kopierer teksten til utklippstavlen
+ * - Viser en bekreftelse til brukeren
+ */
+async function kopierOppsummering() {
+  try {
+    const dato = new Date().toLocaleDateString('no-NO');
+    const tid = new Date().toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' });
+    
+    let oppsummering = `ALKOHOLENHETER - OVERSIKT\n`;
+    oppsummering += `=======================================\n\n`;
+    
+    let totalAE = 0;
+    let harAktiveRader = false;
+    
+    // Gå gjennom alle tabeller og finn aktive rader
+    document.querySelectorAll("table").forEach(table => {
+      const kategori = table.dataset.kategori;
+      let kategoriAE = 0;
+      let kategoriRader = [];
+      
+      table.querySelectorAll("tbody tr.aktiv").forEach(tr => {
+        const volumInput = tr.querySelector(".volum");
+        const prosentInput = tr.querySelector(".prosent");
+        const antallInput = tr.querySelector(".antall");
+        
+        // Hent verdier
+        const volum = volumInput ? parseFloat(volumInput.value) : parseFloat(tr.dataset.volume);
+        const prosent = parseFloat(prosentInput.value);
+        const antall = parseFloat(antallInput.value);
+        
+        if (antall > 0) {
+          const ae = kalkulerAE(volum, prosent, antall);
+          totalAE += ae;
+          kategoriAE += ae;
+          harAktiveRader = true;
+          
+          // Bestem beskrivelse
+          let beskrivelse;
+          if (volumInput) {
+            // Egendefinert rad
+            beskrivelse = `${volum}L (${prosent}%)`;
+          } else {
+            // Forhåndsdefinert rad
+            const visning = tr.cells[0].textContent;
+            beskrivelse = `${visning} (${prosent}%)`;
+          }
+          
+          kategoriRader.push({
+            beskrivelse: beskrivelse,
+            antall: antall,
+            ae: ae
+          });
+        }
+      });
+      
+      // Legg til kategori i oppsummering hvis den har aktive rader
+      if (kategoriRader.length > 0) {
+        oppsummering += `${kategori.toUpperCase()}:\n`;
+        kategoriRader.forEach(rad => {
+          oppsummering += `  ${rad.beskrivelse} × ${rad.antall} = ${rad.ae.toFixed(1)} AE\n`;
+        });
+        oppsummering += `  Subtotal: ${kategoriAE.toFixed(1)} AE\n\n`;
+      }
+    });
+    
+    if (!harAktiveRader) {
+      oppsummering += `Ingen drikkevarer registrert.\n\n`;
+    }
+    
+    oppsummering += `=======================================\n`;
+    oppsummering += `TOTALT: ${Math.round(totalAE)} AE\n`;
+    oppsummering += `=======================================\n\n`;
+    
+    // Kopier til utklippstavlen
+    await navigator.clipboard.writeText(oppsummering);
+    
+    // Vis bekreftelse
+    alert('Oppsummering kopiert til utklippstavlen!\n\nDu kan nå lime inn teksten i andre programmer.');
+    
+  } catch (error) {
+    console.error('Feil ved kopiering:', error);
+    alert('Kunne ikke kopiere til utklippstavlen. Prøv igjen eller sjekk nettleser-tillatelser.');
+  }
+}
+
+// ===========================
+// OPPSTART
+// ===========================
+
+/**
+ * Starter applikasjonen når DOM-en er ferdig lastet
+ * Dette sikrer at alle HTML-elementer er tilgjengelige før JavaScript kjører
+ */
 document.addEventListener('DOMContentLoaded', initKalkulator);
