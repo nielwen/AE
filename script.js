@@ -150,7 +150,7 @@ function lagTabell(kategori, rader, egendefinert = false) {
       tr.dataset.volume = volum; // Lagre volum som data-attributt
       tr.innerHTML = `
         <td>${visning}</td>
-        <td><input type="number" class="prosent" value="${prosent}" step="any">  %</td>
+        <td><input type="number" class="prosent" value="${prosent}" step="any"></td>
         <td><input type="number" class="antall" value="0" step="any"></td>
         <td class="ae"></td>`;
       tbody.appendChild(tr);
@@ -179,7 +179,7 @@ function leggTilEgendefinertRad(tbody = null) {
   const tr = document.createElement("tr");
   tr.innerHTML = `
     <td><input type="number" class="volum" step="any" placeholder="Liter"></td>
-    <td><input type="number" class="prosent" step="any" placeholder="Alkohol%">  %</td>
+    <td><input type="number" class="prosent" step="any" placeholder="%"></td>
     <td><input type="number" class="antall" value="1" step="any"></td>
     <td class="ae"><button class="fjern-knapp" onclick="fjernRad(this)">&times;</button></td>`;
   
