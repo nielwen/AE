@@ -409,15 +409,28 @@ function fjernRad(knapp) {
 }
 
 /**
+ * Viser feedback på knapp når noe er kopiert
+ * 
+ * @param {HTMLElement} btn - Knappen som skal vise feedback
+ */
+function showCopyFeedback(btn) {
+  if (btn) {
+    const old = btn.textContent;
+    btn.textContent = 'Kopiert!';
+    setTimeout(() => btn.textContent = old, 1600);
+  }
+}
+
+/**
  * Lager en tekstlig oppsummering av alkoholenheter og kopierer til utklippstavlen
  * 
  * Denne funksjonen:
  * - Samler all data fra aktive rader (med antall > 0)
  * - Lager en formatert tekstoppsummering
  * - Kopierer teksten til utklippstavlen
- * - Viser en bekreftelse til brukeren
+ * - Viser visuell bekreftelse på knappen
  */
-async function kopierOppsummering() {
+async function kopierOppsummering(btn) {
   try {
     const dato = new Date().toLocaleDateString('no-NO');
     const tid = new Date().toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' });
@@ -490,11 +503,12 @@ async function kopierOppsummering() {
     // Kopier til utklippstavlen
     await navigator.clipboard.writeText(oppsummering);
     
-    // Vis bekreftelse
-    alert('Oppsummering kopiert til utklippstavlen!\n\nDu kan nå lime inn teksten i andre programmer.');
+    // Vis visuell bekreftelse på knappen
+    showCopyFeedback(btn);
     
   } catch (error) {
     console.error('Feil ved kopiering:', error);
+    // Vis feilmelding som popup kun hvis kopiering feiler
     alert('Kunne ikke kopiere til utklippstavlen. Prøv igjen eller sjekk nettleser-tillatelser.');
   }
 }
