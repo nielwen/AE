@@ -186,6 +186,17 @@ button:hover {
   body {
     background: white !important;
   }
+  
+  /* Print header med favicon */
+  h1::before {
+    content: url('favicon.png');
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+    vertical-align: middle;
+  }
+  
   tr.aktiv {
     background-color: #e8f5e8  !important;
     -webkit-print-color-adjust: exact;
