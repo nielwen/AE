@@ -15,25 +15,36 @@
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="shortcut icon" type="image/png" href="favicon.png">
   <link rel="apple-touch-icon" href="favicon.png">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>Kalkulator for beregning av alkoholenheter</h1>
+  <!-- Språkvalg -->
+  <div class="language-selector">
+    <button onclick="changeLanguage('no')" class="lang-btn active" id="lang-no" title="Norsk">
+      <span class="fi fi-no"></span>
+    </button>
+    <button onclick="changeLanguage('en')" class="lang-btn" id="lang-en" title="English">
+      <span class="fi fi-gb"></span>
+    </button>
+  </div>
+  
+  <h1 data-translate="title">Kalkulator for beregning av alkoholenheter</h1>
   <div id="kalkulator"></div>
   <div id="egendefinertseksjon"></div>
   <div class="knapper">
-    <button onclick="visEgendefinert()">Legg til egendefinert</button>
+    <button onclick="visEgendefinert()" data-translate="addCustom">Legg til egendefinert</button>
   </div>
   <div class="grand-total">
-    Totalt antall alkoholenheter: <span id="grandTotal">0</span> AE
+    <span data-translate="totalUnits">Totalt antall alkoholenheter:</span> <span id="grandTotal">0</span> <span id="unitLabel">AE</span>
   </div>
   <div class="knapper">
-    <button onclick="resetKalkulator()">Tøm</button>
-    <button onclick="kopierOppsummering(this)">Kopier oppsummering</button>
-    <button onclick="window.print()">Utskrift</button>
+    <button onclick="resetKalkulator()" data-translate="reset">Tøm</button>
+    <button onclick="kopierOppsummering(this)" data-translate="copy">Kopier oppsummering</button>
+    <button onclick="window.print()" data-translate="print">Utskrift</button>
   </div>  
   <div class="footer-link">
-    <a href="https://www.ciwa.no" target="_blank" rel="noopener noreferrer">
+    <a href="https://www.ciwa.no" target="_blank" rel="noopener noreferrer" data-translate="ciwaLink">
       Gå til CIWA scoring for vurdering av alkoholabstinenser
     </a>
   </div>

@@ -13,6 +13,73 @@
 // ===========================
 
 /**
+ * Oversettelser for alle språk
+ */
+const translations = {
+  no: {
+    title: "Kalkulator for beregning av alkoholenheter",
+    beerCider: "Øl/cider",
+    wine: "Vin", 
+    spirits: "Brennevin",
+    addCustom: "Legg til egendefinert",
+    totalUnits: "Totalt antall alkoholenheter:",
+    reset: "Tøm",
+    copy: "Kopier oppsummering",
+    print: "Utskrift",
+    custom: "Egendefinert",
+    volume: "Volum",
+    alcoholPercent: "Alkohol%",
+    amount: "Antall",
+    liter: "Liter",
+    ciwaLink: "Gå til CIWA scoring for vurdering av alkoholabstinenser"
+  },
+  en: {
+    title: "Alcohol Unit Calculator",
+    beerCider: "Beer/Cider",
+    wine: "Wine",
+    spirits: "Spirits",
+    addCustom: "Add custom",
+    totalUnits: "Total alcohol units:",
+    reset: "Clear",
+    copy: "Copy summary",
+    print: "Print",
+    custom: "Custom",
+    volume: "Volume",
+    alcoholPercent: "Alcohol%",
+    amount: "Amount",
+    liter: "Liters",
+    units: "Units",
+    ciwaLink: "Go to CIWA scoring for alcohol withdrawal assessment"
+  }
+};
+
+/**
+ * Aktuelt språk (standard norsk)
+ */
+let currentLanguage = 'no';
+
+/**
+ * Oversetter visningsnavn basert på aktuelt språk
+ * @param {string} visning - Norsk visningsnavn
+ * @returns {string} Oversatt visningsnavn
+ */
+function translateVolumeName(visning) {
+  if (currentLanguage === 'no') return visning;
+  
+  const volumeTranslations = {
+    '125 cl (glass)': '125 cl (glass)',
+    '0,75 liter (flaske)': '0.75 liter (bottle)',
+    '3 liter': '3 liters',
+    '0,5 liter': '0.5 liters',
+    '0,33 liter': '0.33 liters',
+    '4 cl (shot)': '4 cl (shot)',
+    '0,7 liter': '0.7 liters'
+  };
+  
+  return volumeTranslations[visning] || visning;
+}
+
+/**
  * Predefinerte drikkevaretyper med standardverdier
  * Hver kategori inneholder volum (i liter), visningstekst og typisk alkoholprosent
  */
@@ -62,11 +129,19 @@ let egendefinertTable = null;
  * - Kjører første beregning for å vise startverdi (0 AE)
  */
 function initKalkulator() {
+  // Oversett kategorinavn
+  const categoryTranslations = {
+    "Øl/cider": "beerCider",
+    "Vin": "wine", 
+    "Brennevin": "spirits"
+  };
+  
   // Gå gjennom alle drikkekategorier i datasettet
   for (const kategori in drikkedata) {
     // Lag overskrift for kategorien
     const h2 = document.createElement("h2");
-    h2.textContent = kategori;
+    const translationKey = categoryTranslations[kategori];
+    h2.textContent = translations[currentLanguage][translationKey] || kategori;
     kalkulatorDiv.appendChild(h2);
 
     // Lag tabell med alle drikkevarene i kategorien
@@ -92,7 +167,7 @@ function visEgendefinert() {
   if (!egendefinertTable) {
     // Første gang: Lag overskrift
     egendefinertH2 = document.createElement("h2");
-    egendefinertH2.textContent = "Egendefinert";
+    egendefinertH2.textContent = translations[currentLanguage].custom;
     egendefinertSeksjon.appendChild(egendefinertH2);
 
     // Lag tom tabell for egendefinerte drikkevarer
@@ -127,12 +202,13 @@ function lagTabell(kategori, rader, egendefinert = false) {
   
   // Lag tabellhode med kolonner
   const thead = document.createElement("thead");
+  const unitLabel = currentLanguage === 'en' ? translations[currentLanguage].units : 'AE';
   thead.innerHTML = `
     <tr>
-      <th>Volum</th>
-      <th>Alkohol%</th>
-      <th>Antall</th>
-      <th>AE</th>
+      <th>${translations[currentLanguage].volume}</th>
+      <th>${translations[currentLanguage].alcoholPercent}</th>
+      <th>${translations[currentLanguage].amount}</th>
+      <th>${unitLabel}</th>
     </tr>`;
   table.appendChild(thead);
 
@@ -148,8 +224,9 @@ function lagTabell(kategori, rader, egendefinert = false) {
     rader.forEach(({ volum, visning, prosent }) => {
       const tr = document.createElement("tr");
       tr.dataset.volume = volum; // Lagre volum som data-attributt
+      const translatedVisning = translateVolumeName(visning);
       tr.innerHTML = `
-        <td>${visning}</td>
+        <td>${translatedVisning}</td>
         <td><input type="number" class="prosent" value="${prosent}" step="any"></td>
         <td><input type="number" class="antall" value="0" step="any"></td>
         <td class="ae"></td>`;
@@ -178,7 +255,7 @@ function leggTilEgendefinertRad(tbody = null) {
   // Lag ny rad med input-felt for alle verdier
   const tr = document.createElement("tr");
   tr.innerHTML = `
-    <td><input type="number" class="volum" step="any" placeholder="Liter"></td>
+    <td><input type="number" class="volum" step="any" placeholder="${translations[currentLanguage].liter}"></td>
     <td><input type="number" class="prosent" step="any" placeholder="%"></td>
     <td><input type="number" class="antall" value="1" step="any"></td>
     <td class="ae"><button class="fjern-knapp" onclick="fjernRad(this)">&times;</button></td>`;
@@ -514,6 +591,48 @@ async function kopierOppsummering(btn) {
 }
 
 // ===========================
+// SPRÅKFUNKSJONER
+// ===========================
+
+/**
+ * Bytter språk og oppdaterer all tekst på siden
+ * 
+ * @param {string} lang - Språkkode ('no' eller 'en')
+ */
+function changeLanguage(lang) {
+  console.log('Changing language to:', lang);
+  currentLanguage = lang;
+  
+  // Oppdater aktiv språkknapp
+  document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+  document.getElementById('lang-' + lang).classList.add('active');
+  
+  // Oppdater alle elementer med data-translate attributt
+  document.querySelectorAll('[data-translate]').forEach(element => {
+    const key = element.getAttribute('data-translate');
+    if (translations[lang][key]) {
+      element.textContent = translations[lang][key];
+    }
+  });
+  
+  // Oppdater unit label - fjern AE på engelsk
+  const unitLabel = document.getElementById('unitLabel');
+  if (unitLabel) {
+    unitLabel.textContent = (lang === 'en') ? '' : 'AE';
+  }
+  
+  // Håndter CIWA-link - skjul på engelsk, vis på norsk
+  const footerLink = document.querySelector('.footer-link');
+  if (footerLink) {
+    footerLink.style.display = (lang === 'en') ? 'none' : 'block';
+  }
+  
+  // Gjenoppbygg kalkulatoren med nytt språk
+  kalkulatorDiv.innerHTML = '';
+  initKalkulator();
+}
+
+// ===========================
 // OPPSTART
 // ===========================
 
@@ -521,4 +640,33 @@ async function kopierOppsummering(btn) {
  * Starter applikasjonen når DOM-en er ferdig lastet
  * Dette sikrer at alle HTML-elementer er tilgjengelige før JavaScript kjører
  */
-document.addEventListener('DOMContentLoaded', initKalkulator);
+document.addEventListener('DOMContentLoaded', () => {
+  // Sett riktig aktiv språkknapp basert på detektert språk
+  document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+  document.getElementById('lang-' + currentLanguage).classList.add('active');
+  
+  // Oppdater oversettelser hvis engelsk er detektert
+  if (currentLanguage === 'en') {
+    document.querySelectorAll('[data-translate]').forEach(element => {
+      const key = element.getAttribute('data-translate');
+      if (translations[currentLanguage][key]) {
+        element.textContent = translations[currentLanguage][key];
+      }
+    });
+    
+    // Fjern AE på engelsk
+    const unitLabel = document.getElementById('unitLabel');
+    if (unitLabel) {
+      unitLabel.textContent = '';
+    }
+    
+    // Skjul CIWA-link på engelsk
+    const footerLink = document.querySelector('.footer-link');
+    if (footerLink) {
+      footerLink.style.display = 'none';
+    }
+  }
+  
+  // Start kalkulatoren
+  initKalkulator();
+});
