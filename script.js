@@ -212,7 +212,7 @@ function leggTilLyttere(tr) {
     
     // Spesiell håndtering for number-input
     if (input.type === "number") {
-      // Focus-hendelse: Tøm felt ved første bruk
+      // Focus-hendelse: Marker all tekst for direkte skriving
       input.addEventListener("focus", () => {
         // Mobile-optimalisering: Scroll til felt på små skjermer
         if (window.innerWidth <= 480) {
@@ -221,10 +221,10 @@ function leggTilLyttere(tr) {
           }, 300);
         }
         
-        // Tøm felt hvis det ikke har blitt endret og har standard-/null-verdi
-        if (!touched && (input.value === initial || input.value === "0")) {
-          input.value = "";
-        }
+        // Marker all tekst så brukeren kan skrive direkte
+        setTimeout(() => {
+          input.select();
+        }, 10); // Kort delay for å sikre at select() fungerer
       });
       
       // Blur-hendelse: Sett tilbake til opprinnelig verdi hvis tomt
